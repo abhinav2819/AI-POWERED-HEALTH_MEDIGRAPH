@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { AUTH } from '@/constants/testIds';
 import { HeartPulse } from 'lucide-react';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -58,10 +59,24 @@ const Signup = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     try {
-      console.log('Google signup success:', credentialResponse);
-      toast.info('Google OAuth integration in progress');
+      setLoading(true);
+      // Send credential to our backend
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/google`, {
+        credential: credentialResponse.credential
+      });
+      
+      const { accessToken, refreshToken, id, profileCompleted, isNewUser, name, picture } = response.data;
+      
+      login(accessToken, refreshToken, { id, email: credentialResponse.email, profileCompleted, name, picture });
+      toast.success('Account created successfully!');
+      
+      // Always redirect to complete profile for Google signups
+      navigate('/profile/complete');
     } catch (error) {
-      toast.error('Google signup failed');
+      console.error('Google signup error:', error);
+      toast.error(error.response?.data?.detail || 'Google signup failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,7 +148,7 @@ const Signup = () => {
           <div className="flex-1 border-t border-[#E5E7E1]"></div>
         </div>
 
-        {GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'your-google-client-id' ? (
+        {GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'your-google-client-id' && GOOGLE_CLIENT_ID !== '1024444129294-5nu05kge0npno8ck9pld5om3eh1u22p2.apps.googleusercontent.com' ? (
           <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <div className="flex justify-center" data-testid={AUTH.signupGoogleBtn}>
               <GoogleLogin
@@ -142,17 +157,23 @@ const Signup = () => {
                 theme="outline"
                 size="large"
                 width="100%"
+                text="signup_with"
               />
             </div>
           </GoogleOAuthProvider>
         ) : (
-          <Button
-            variant="outline"
-            className="w-full rounded-full border-[#E5E7E1] h-12"
-            disabled
-          >
-            Google Sign Up (Configure Client ID)
-          </Button>
+          <GoogleOAuthProvider clientId="1024444129294-5nu05kge0npno8ck9pld5om3eh1u22p2.apps.googleusercontent.com">
+            <div className="flex justify-center" data-testid={AUTH.signupGoogleBtn}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => toast.error('Google signup failed')}
+                theme="outline"
+                size="large"
+                width="100%"
+                text="signup_with"
+              />
+            </div>
+          </GoogleOAuthProvider>
         )}
 
         <p className="text-center text-sm text-[#666] mt-6">

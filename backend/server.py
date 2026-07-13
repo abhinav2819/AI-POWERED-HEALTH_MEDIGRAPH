@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 import httpx
 import razorpay
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -36,6 +38,9 @@ WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
 GRAPH_API_VERSION = os.getenv("GRAPH_API_VERSION", "v21.0")
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+SPRING_BOOT_URL = os.getenv("SPRING_BOOT_BACKEND_URL", "http://localhost:8080/api/health/v1")
 
 # Razorpay client
 razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET)) if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET else None
@@ -73,6 +78,80 @@ class Product(BaseModel):
     image_url: str
     category: str
     stock: int = 100
+
+class GoogleAuthRequest(BaseModel):
+    credential: str
+
+# Google OAuth Authentication
+@api_router.post("/auth/google")
+async def google_auth(auth_request: GoogleAuthRequest):
+    """
+    Authenticate user with Google OAuth
+    """
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="Google OAuth not configured")
+    
+    try:
+        # Verify the Google ID token
+        idinfo = id_token.verify_oauth2_token(
+            auth_request.credential,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID
+        )
+        
+        # Get user info from token
+        email = idinfo.get('email')
+        name = idinfo.get('name')
+        picture = idinfo.get('picture')
+        google_id = idinfo.get('sub')
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not provided by Google")
+        
+        # Forward to Spring Boot backend for actual authentication
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                # Try to login first
+                login_response = await client.post(
+                    f"{SPRING_BOOT_URL}/auth/login",
+                    json={"username": email, "password": google_id}
+                )
+                
+                if login_response.status_code == 200:
+                    return login_response.json()
+            except httpx.HTTPError:
+                pass
+            
+            # If login fails, try to signup
+            try:
+                signup_response = await client.post(
+                    f"{SPRING_BOOT_URL}/auth/signup",
+                    json={"username": email, "password": google_id}
+                )
+                
+                if signup_response.status_code in [200, 201]:
+                    # After signup, login
+                    login_response = await client.post(
+                        f"{SPRING_BOOT_URL}/auth/login",
+                        json={"username": email, "password": google_id}
+                    )
+                    
+                    if login_response.status_code == 200:
+                        result = login_response.json()
+                        result['isNewUser'] = True
+                        result['name'] = name
+                        result['picture'] = picture
+                        return result
+            except Exception as e:
+                logging.error(f"Signup failed: {str(e)}")
+        
+        raise HTTPException(status_code=500, detail="Failed to authenticate with backend")
+        
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid Google token: {str(e)}")
+    except Exception as e:
+        logging.error(f"Google auth error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Authentication failed: {str(e)}")
 
 # AI Health Coach Endpoints
 @api_router.post("/ai-coach/chat")
