@@ -57,10 +57,8 @@ const Signup = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     try {
       setLoading(true);
-      // Send credential to our backend
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/google`, {
         credential: credentialResponse.credential
       });
@@ -70,10 +68,8 @@ const Signup = () => {
       login(accessToken, refreshToken, { id, email: credentialResponse.email, profileCompleted, name, picture });
       toast.success('Account created successfully!');
       
-      // Always redirect to complete profile for Google signups
       navigate('/profile/complete');
     } catch (error) {
-      console.error('Google signup error:', error);
       toast.error(error.response?.data?.detail || 'Google signup failed');
     } finally {
       setLoading(false);

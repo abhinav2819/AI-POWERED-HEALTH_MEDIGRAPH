@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { userApi, whatsappApi } from '@/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,30 +18,30 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [whatsappNumber, setWhatsappNumber] = useState('');
 
-  useEffect(() => {
-    fetchProfile();
-    fetchGoals();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await userApi.getProfile();
       setProfile(response.data);
     } catch (error) {
-      console.error('Failed to fetch profile:', error);
+      // Profile fetch failed
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchGoals = async () => {
+  const fetchGoals = useCallback(async () => {
     try {
       const response = await userApi.getGoals();
       setGoals(response.data);
     } catch (error) {
-      console.error('Failed to fetch goals:', error);
+      // Goals fetch failed
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+    fetchGoals();
+  }, [fetchProfile, fetchGoals]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();

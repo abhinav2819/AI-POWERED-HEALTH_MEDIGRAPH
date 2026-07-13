@@ -40,7 +40,7 @@ const Support = () => {
     },
     {
       question: 'Can I receive health reports on WhatsApp?',
-      answer: 'Yes! Go to your profile, enter your WhatsApp number, and enable WhatsApp notifications. You\'ll receive personalized health reports and insights directly to your WhatsApp.'
+      answer: 'Yes! Go to your profile, enter your WhatsApp number, and enable WhatsApp notifications. You&apos;ll receive personalized health reports and insights directly to your WhatsApp.'
     },
     {
       question: 'How does the AI Health Coach work?',
@@ -67,7 +67,7 @@ const Support = () => {
           <h1 className="text-4xl sm:text-5xl font-outfit font-semibold text-[#1A1F16] tracking-tight">
             Support & Help
           </h1>
-          <p className="text-base text-[#666] mt-2">We're here to help you on your health journey</p>
+          <p className="text-base text-[#666] mt-2">We&apos;re here to help you on your health journey</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -179,7 +179,7 @@ const Support = () => {
           <Card className="border-[#E5E7E1] rounded-3xl p-6">
             <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`} className="border-b border-[#E5E7E1] last:border-0">
+                <AccordionItem key={`faq-${faq.question.substring(0, 20)}`} value={`item-${index}`} className="border-b border-[#E5E7E1] last:border-0">
                   <AccordionTrigger className="text-left font-medium text-[#1A1F16] hover:text-[#8A9A5B] transition-colors duration-200">
                     {faq.question}
                   </AccordionTrigger>

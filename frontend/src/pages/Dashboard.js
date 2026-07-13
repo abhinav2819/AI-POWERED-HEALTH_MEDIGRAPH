@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { metricsApi, analyticsApi, userApi } from '@/api';
 import { Card } from '@/components/ui/card';
@@ -9,6 +9,52 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Cartesia
 import { Activity, Footprints, HeartPulse, Moon, Flame, TrendingUp, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Extract MetricCard component outside to avoid re-creation on each render
+const MetricCard = ({ type, icon: Icon, title, color, value, data, target }) => {
+  return (
+    <Card className="p-6 border-[#E5E7E1] rounded-2xl hover:shadow-md transition-all duration-200 hover:-translate-y-1" data-testid={`${DASHBOARD.metricsCard}-${type}`}>
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Icon className="w-5 h-5" style={{ color }} />
+            <h3 className="text-sm font-medium text-[#666] uppercase tracking-wide">{title}</h3>
+          </div>
+          <p className="text-3xl font-outfit font-semibold text-[#1A1F16]">
+            {formatMetricValue(type, value)}
+          </p>
+          {target && (
+            <p className="text-xs text-[#666] mt-1">
+              Goal: {formatMetricValue(type, target)}
+            </p>
+          )}
+        </div>
+      </div>
+      {data.length > 0 && (
+        <div className="h-20">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data}>
+              <defs>
+                <linearGradient id={`gradient-${type}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor={color} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke={color} 
+                strokeWidth={2}
+                fill={`url(#gradient-${type})`}
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </Card>
+  );
+};
+
 const Dashboard = () => {
   const [metrics, setMetrics] = useState([]);
   const [bmi, setBmi] = useState(null);
@@ -17,11 +63,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const [metricsRes, bmiRes, progressRes, goalsRes] = await Promise.all([
         metricsApi.getAllMetrics(),
@@ -36,11 +78,14 @@ const Dashboard = () => {
       setGoals(goalsRes?.data);
     } catch (error) {
       toast.error('Failed to load dashboard data');
-      console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const getLatestMetricValue = (type) => {
     const typeMetrics = metrics.filter(m => m.metricType === type);
@@ -58,52 +103,22 @@ const Dashboard = () => {
       }));
   };
 
-  const MetricCard = ({ type, icon: Icon, title, color }) => {
+  const renderMetricCard = (type, icon, title, color) => {
     const value = getLatestMetricValue(type);
     const data = getMetricChartData(type);
     const target = goals?.[`target${type.charAt(0) + type.slice(1).toLowerCase()}`];
-
+    
     return (
-      <Card className="p-6 border-[#E5E7E1] rounded-2xl hover:shadow-md transition-all duration-200 hover:-translate-y-1" data-testid={`${DASHBOARD.metricsCard}-${type}`}>
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Icon className="w-5 h-5" style={{ color }} />
-              <h3 className="text-sm font-medium text-[#666] uppercase tracking-wide">{title}</h3>
-            </div>
-            <p className="text-3xl font-outfit font-semibold text-[#1A1F16]">
-              {formatMetricValue(type, value)}
-            </p>
-            {target && (
-              <p className="text-xs text-[#666] mt-1">
-                Goal: {formatMetricValue(type, target)}
-              </p>
-            )}
-          </div>
-        </div>
-        {data.length > 0 && (
-          <div className="h-20">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id={`gradient-${type}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={color} stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke={color} 
-                  strokeWidth={2}
-                  fill={`url(#gradient-${type})`}
-                  dot={false}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </Card>
+      <MetricCard
+        key={type}
+        type={type}
+        icon={icon}
+        title={title}
+        color={color}
+        value={value}
+        data={data}
+        target={target}
+      />
     );
   };
 
@@ -155,30 +170,10 @@ const Dashboard = () => {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <MetricCard 
-            type="STEPS" 
-            icon={Footprints} 
-            title="Steps" 
-            color="#8A9A5B" 
-          />
-          <MetricCard 
-            type="HEART_RATE" 
-            icon={HeartPulse} 
-            title="Heart Rate" 
-            color="#E2725B" 
-          />
-          <MetricCard 
-            type="SLEEP" 
-            icon={Moon} 
-            title="Sleep" 
-            color="#6B7280" 
-          />
-          <MetricCard 
-            type="CALORIES" 
-            icon={Flame} 
-            title="Calories" 
-            color="#D97706" 
-          />
+          {renderMetricCard('STEPS', Footprints, 'Steps', '#8A9A5B')}
+          {renderMetricCard('HEART_RATE', HeartPulse, 'Heart Rate', '#E2725B')}
+          {renderMetricCard('SLEEP', Moon, 'Sleep', '#6B7280')}
+          {renderMetricCard('CALORIES', Flame, 'Calories', '#D97706')}
         </div>
 
         {/* Quick Actions */}

@@ -16,8 +16,14 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // NOTE: Using localStorage for tokens is a known security trade-off.
+  // For production apps with high security needs, consider:
+  // 1. httpOnly cookies (requires backend coordination)
+  // 2. Encrypted localStorage with short-lived tokens
+  // 3. Additional XSS protection measures
+
   useEffect(() => {
-    // Check for existing token
+    // Check for existing token on mount
     const storedToken = localStorage.getItem('accessToken');
     const storedUser = localStorage.getItem('user');
     
@@ -35,14 +41,14 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem('user');
         }
       } catch (error) {
-        console.error('Invalid token:', error);
+        // Invalid token, clear storage
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
       }
     }
     setLoading(false);
-  }, []);
+  }, []); // Only run on mount
 
   const login = (accessToken, refreshToken, userData) => {
     localStorage.setItem('accessToken', accessToken);

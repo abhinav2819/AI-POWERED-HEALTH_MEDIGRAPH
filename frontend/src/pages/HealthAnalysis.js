@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { metricsApi, analyticsApi } from '@/api';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,11 +15,7 @@ const HealthAnalysis = () => {
   const [bmi, setBmi] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAnalysisData();
-  }, [metricType, period]);
-
-  const fetchAnalysisData = async () => {
+  const fetchAnalysisData = useCallback(async () => {
     setLoading(true);
     try {
       const endDate = new Date();
@@ -48,7 +44,11 @@ const HealthAnalysis = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [metricType, period]);
+
+  useEffect(() => {
+    fetchAnalysisData();
+  }, [fetchAnalysisData]);
 
   const chartData = history.map(item => ({
     date: formatDate(item.timestamp),

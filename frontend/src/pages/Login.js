@@ -44,10 +44,8 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     try {
       setLoading(true);
-      // Send credential to our backend
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/google`, {
         credential: credentialResponse.credential
       });
@@ -63,7 +61,6 @@ const Login = () => {
         navigate('/dashboard');
       }
     } catch (error) {
-      console.error('Google login error:', error);
       toast.error(error.response?.data?.detail || 'Google login failed');
     } finally {
       setLoading(false);
@@ -155,7 +152,7 @@ const Login = () => {
         )}
 
         <p className="text-center text-sm text-[#666] mt-6">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link
             to="/signup"
             data-testid={AUTH.switchToSignup}
