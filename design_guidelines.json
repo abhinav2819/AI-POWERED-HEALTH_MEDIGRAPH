@@ -1,0 +1,96 @@
+{
+  "theme": "ORGANIC & EARTHY",
+  "mode": "light",
+  "typography": {
+    "headings": {
+      "font_family": "Outfit, sans-serif",
+      "scale": "text-4xl sm:text-5xl lg:text-6xl for Hero; text-2xl to 4xl for sections",
+      "style": "tracking-tight, leading-none, varied weights (font-light vs font-bold for contrast)"
+    },
+    "body": {
+      "font_family": "Manrope, sans-serif",
+      "scale": "text-base for main text, text-sm for dashboard dense areas",
+      "style": "leading-relaxed"
+    },
+    "labels": {
+      "font_family": "Manrope, sans-serif",
+      "style": "uppercase, tracking-[0.2em], text-xs"
+    }
+  },
+  "colors": {
+    "base": "Warm sand / Bone-white. #FDFDF9 or #F4F5F0",
+    "primary": "Sage Green (#8A9A5B) for main CTAs, active states",
+    "secondary": "Terracotta (#E2725B) for attention/highlights",
+    "neutral": "Tinted greys with a touch of warm orange or olive, NEVER pure #000000 or #808080. Dark text: #1A1F16",
+    "backgrounds": "bg-[#FDFDF9] for main pages, bg-white for cards with 1px border. Do not use full-screen gradients."
+  },
+  "surfaces_and_micro_themes": {
+    "dashboards": "Flat Solid surfaces instead of Glass. Use warm solid backgrounds with subtle borders (border-[#E5E7E1]). No heavy shadows.",
+    "cards": "border border-black/5 or border-[#E5E7E1], rounded-2xl or rounded-3xl. Flat background, hover state with slight lift (-translate-y-1) and shadow-sm.",
+    "header": "Solid Background or highly saturated blur (backdrop-blur-xl bg-[#FDFDF9]/80) with a hard bottom border. NO fully transparent headers over content."
+  },
+  "grids_and_layouts": {
+    "dashboard": "High Density Grid. grid-cols-1 md:grid-cols-3 lg:grid-cols-4. gap-4 or gap-6. Every pixel utilized. h-full on children.",
+    "marketing": "The Bento Grid Protocol. Asymmetry, Visual Tension. grid-cols-1 md:grid-cols-12 gap-8 to gap-12.",
+    "spacing": "Generous Spacing Philosophy. Use 2-3x more spacing (p-6, p-8, p-12). Containers with borders must have internal padding."
+  },
+  "motion": {
+    "interactions": "Hover states on all interactive elements, click/press states, focus states.",
+    "transitions": "Use specific properties (e.g., transition: transform 0.2s ease, opacity 0.2s ease). NEVER use transition: all.",
+    "animations": "Staggered entrance animations for lists and grids. Micro-animations for feedback."
+  },
+  "accessibility": {
+    "contrast": "APCA contrast standards. Normal text min 4.5:1. Never gray-on-gray.",
+    "interactive": "Always explicitly set text color on hover (e.g., hover:bg-sage-700 hover:text-white). Focus states must have higher contrast.",
+    "testing": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case."
+  },
+  "components": {
+    "strategy": "Dashboards/Apps use Shadcn components heavily customized. Marketing pages use Custom HTML/Tailwind for asymmetry.",
+    "charts": "Recharts or Shadcn chart components for steps, heart rate, sleep. Accessible color-blind-friendly palettes.",
+    "forms": "Shadcn Form, Input, Select. Overlap input borders subtly.",
+    "buttons": "Pill-shaped (rounded-full) or smooth rounded-xl. Primary color for main CTA only."
+  },
+  "3d_libraries": {
+    "strategy": "Minimal 3D for clinical health apps. If needed for a specific product showcase (store), use Framer Motion for simple transitions or 2.5D layer effects. Keep data fast and performant using Recharts."
+  },
+  "media": {
+    "images": "Real photos representing health, fitness, and organic products. Max height 80vh on mobile. Images should have subjects.",
+    "icons": "@phosphor-icons/react for Duotone weight (premium look) or lucide-react for standard interfaces."
+  },
+  "image_urls": {
+    "hero_smartwatch": {
+      "url": "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHw0fHxzbWFydHdhdGNoJTIwcnVubmluZyUyMGhlYWx0aCUyMGRhdGF8ZW58MHx8fHwxNzgzOTQxMjAwfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Person wearing a smartwatch to track daily health records, use for hero or dashboard top section."
+    },
+    "lifestyle": {
+      "url": "https://images.unsplash.com/photo-1558017487-06bf9f82613a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwzfHxoZWFsdGh5JTIwbGlmZXN0eWxlJTIwd2VsbG5lc3MlMjBmaXRuZXNzfGVufDB8fHx8MTc4Mzk0MTIwMXww&ixlib=rb-4.1.0&q=85",
+      "description": "Fitness setup (dumbbells, protein shake) representing health and wellness tracking."
+    },
+    "product_mockup": {
+      "url": "https://images.unsplash.com/photo-1763668331599-487470fb85b2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxoZWFsdGglMjBwcm9kdWN0JTIwc3VwcGxlbWVudHMlMjBtb2NrdXB8ZW58MHx8fHwxNzgzOTQxMjAxfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Clear supplement bottle on green background, use in the Store / E-commerce section."
+    },
+    "user_avatar": {
+      "url": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxhdmF0YXIlMjBwb3J0cmFpdCUyMHNtaWxpbmclMjBwZXJzb258ZW58MHx8fHwxNzgzOTQxMjE3fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Smiling person avatar for the profile/dashboard header."
+    }
+  },
+  "instructions_to_main_agent": [
+    "Execute all these styles using Tailwind CSS in .js files.",
+    "Do NOT use HTML-based components for advanced interactions, rely on customized Shadcn UI.",
+    "Create a robust frontend routing structure for the Dashboard, Store, AI Coach, and Profile.",
+    "Include a data-testid on every interactive element (button, link, input).",
+    "Ensure 'transition: all' is avoided in Tailwind or custom CSS.",
+    "For the E-commerce checkout flow, bridge the artful presentation with reliable UX for transactions.",
+    "Apply 'font-family' customizations globally in CSS."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not converge toward generic 'AI slop' layouts. Follow the generous spacing and varied typography scales.",
+    "Do not apply 'transition: all' globally or locally, it breaks layout transforms.",
+    "Never center-align the main App container.",
+    "Use modern pill-shaped or sharp-edged buttons with interaction animations.",
+    "Never use AI assistant emoji characters (like robot/brain) for icons. Use Phosphor or Lucide icons.",
+    "Use the exact image URLs provided, never use generic placeholders.",
+    "Use 'sonner' for toast notifications, properly customized."
+  ]
+}
